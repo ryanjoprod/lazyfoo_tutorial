@@ -1,12 +1,4 @@
 // Using SDL and standard IO
-#include <SDL3/SDL_error.h>
-#include <SDL3/SDL_events.h>
-#include <SDL3/SDL_init.h>
-#include <SDL3/SDL_oldnames.h>
-#include <SDL3/SDL_pixels.h>
-#include <SDL3/SDL_surface.h>
-#include <SDL3/SDL_video.h>
-#include <cstddef>
 #include <stdio.h>
 #include <SDL3/SDL.h>
 
