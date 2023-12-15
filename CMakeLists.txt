@@ -14,5 +14,7 @@ target_compile_options(compiler_flags INTERFACE
 
 add_executable(${CMAKE_PROJECT_NAME} src/main.cpp)
 
+include_directories(images)
+
 find_package(SDL3 REQUIRED CONFIG REQUIRED COMPONENTS SDL3)
 target_link_libraries(${CMAKE_PROJECT_NAME} SDL3::SDL3 compiler_flags)
