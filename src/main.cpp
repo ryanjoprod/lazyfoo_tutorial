@@ -1,6 +1,4 @@
 // Using SDL and standard IO
-#include <SDL3/SDL_keycode.h>
-#include <cstddef>
 #include <string>
 #include <stdio.h>
 #include <SDL3/SDL.h>
