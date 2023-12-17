@@ -1,4 +1,4 @@
-// Using SDL and standard IO
+// Using SDL and standard IO 
 #include <string>
 #include <stdio.h>
 #include <SDL3/SDL.h>
@@ -27,20 +27,37 @@ SDL_Surface* gScreenSurface = NULL;
 // The image that correspons to a keypress 
 SDL_Surface* gKeyPressSurfaces[KEY_PRESS_SURFACE_TOTAL];
 
-// CUrrent displayed image
+// Current displayed image
 SDL_Surface* gCurrentSurface = NULL;
 
 // Loads individual image
 SDL_Surface* loadSurface(std::string path)
 {
+  // The final optimized image
+  SDL_Surface* optimizedSurface = NULL;
+
   // Load image at specified path
   SDL_Surface* loadedSurface = SDL_LoadBMP(path.c_str());
   if (loadedSurface == NULL)
   {
     printf("Unable to load image %s! SDL_Error: %s\n", path.c_str(), SDL_GetError());
   }
+  else
+  {
+    // Convert surface to screen format
+    // optimizedSurface = SDL_ConvertSurface(loadedSurface, gScreenSurface->format, 0);  // SDL2 Implamentation
+    optimizedSurface = SDL_ConvertSurface(loadedSurface, gScreenSurface->format);  // SDL3 Implamentation
+    if (optimizedSurface == NULL)
+    {
+      printf("Unable to optimize image %s! SDL_Error: %s\n", path.c_str(), SDL_GetError());
+    }
 
-  return loadedSurface;
+    // Get rid of old loaded surface
+    // SDL_FreeSurface(loadedSurface);  // SDL2 Implamentation
+    SDL_DestroySurface(loadedSurface);  // SDl3 Implamentation
+  }
+
+  return optimizedSurface;
 }
 // Starts up SDL and creates window
 bool init()
@@ -80,7 +97,7 @@ bool loadMedia()
   bool success = true;
 
   // Load default surface
-  gKeyPressSurfaces[KEY_PRESS_SURFACE_DEFAULT] = loadSurface("images/press.bmp");
+  gKeyPressSurfaces[KEY_PRESS_SURFACE_DEFAULT] = loadSurface("images/stretch.bmp");
   if (gKeyPressSurfaces[KEY_PRESS_SURFACE_DEFAULT] == NULL)
   {
     printf("Failed to load default image!\n");
@@ -199,8 +216,14 @@ int main(int argc, char* args[])
           }
         }
 
-        // Apply the image
-        SDL_BlitSurface(gCurrentSurface, NULL, gScreenSurface, NULL);
+        // Apply the image stretched
+        SDL_Rect stretchRect;
+        stretchRect.x = 0;
+        stretchRect.y = 0;
+        stretchRect.w = SCREEN_WIDTH;
+        stretchRect.h = SCREEN_HEIGHT;
+        // SDL_BlitScaled(gCurrentSurface, NULL, gScreenSurface, &stretchRect);  // SDL2 Implamentation
+        SDL_BlitSurfaceScaled(gCurrentSurface, NULL, gScreenSurface, &stretchRect);  // SDL3 Implamentation
 
         // Update the surface
         SDL_UpdateWindowSurface(gWindow);
