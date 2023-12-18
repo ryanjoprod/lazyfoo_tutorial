@@ -17,4 +17,5 @@ add_executable(${CMAKE_PROJECT_NAME} src/main.cpp)
 include_directories(images)
 
 find_package(SDL3 REQUIRED CONFIG REQUIRED COMPONENTS SDL3)
-target_link_libraries(${CMAKE_PROJECT_NAME} SDL3::SDL3 compiler_flags)
+find_package(SDL3_image REQUIRED CONFIG REQUIRED COMPONENTS SDL3_image)
+target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE SDL3::SDL3 SDL3_image::SDL3_image compiler_flags)
