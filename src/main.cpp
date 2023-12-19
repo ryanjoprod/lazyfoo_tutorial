@@ -1,9 +1,10 @@
 // Using SDL and standard IO 
-#include <cstddef>
 #include <string>
 #include <stdio.h>
 #include <SDL3/SDL.h>
 #include <SDL3_image/SDL_image.h>
+
+#include "LTexture.h"
 
 // Screen dimension constants
 const int SCREEN_WIDTH = 640;
@@ -12,17 +13,12 @@ const int SCREEN_HEIGHT = 480;
 // The window wi'll be rendering to 
 SDL_Window* gWindow = NULL;
 
-// The surface contained by the window
-SDL_Surface* gScreenSurface = NULL;
-
-// Current displayed image
-SDL_Surface* gCurrentSurface = NULL;
-
 // The window renderer
 SDL_Renderer* gRenderer= NULL;
 
-// Current displayed texture 
-SDL_Texture* gTexture = NULL;
+// Scene textures 
+LTexture gFooTexture;
+LTexture gBackgroundTexture;
 
 // Loads individual image
 // Loads only one file format at a time.
@@ -115,10 +111,16 @@ bool loadMedia()
   // Loading success flag
   bool success = true;
 
-  gTexture = loadTexture("images/viewport.png");
-  if (gTexture == NULL)
+  // Load Foo's texture
+  if(!gFooTexture.loadFromFile("images/foo.png", gRenderer))
   {
-    printf("Failed to load viewport image!\n");
+    printf("Failed to load Foo' texture image!\n");
+    success = false;
+  }
+
+  if (!gBackgroundTexture.loadFromFile("images/background.png", gRenderer))
+  {
+    printf("Failed to load background texture image!\n");
     success = false;
   }
   
@@ -130,8 +132,8 @@ bool loadMedia()
 void close()
 {
   // Free loaded image
-  SDL_DestroyTexture(gTexture);
-  gTexture = NULL;
+  gFooTexture.free();
+  gBackgroundTexture.free();
 
   // Destroy window
   SDL_DestroyRenderer(gRenderer);
@@ -177,44 +179,15 @@ int main(int argc, char* args[])
           }
         }
         
-        // Top left corner viewport
-        SDL_Rect topLeftViewport;
-        topLeftViewport.x = 0;
-        topLeftViewport.y = 0;
-        topLeftViewport.w = SCREEN_WIDTH / 2;
-        topLeftViewport.h = SCREEN_HEIGHT / 2;
-        // SDL_RenderSetViewport(gRenderer, &topLeftViewport);  // SDL2 Implementation
-        SDL_SetRenderViewport(gRenderer, &topLeftViewport);  // SDL3 Implementation
+        // Clear screen
+        SDL_SetRenderDrawColor(gRenderer, 0xFF, 0xFF, 0xFF, 0xFF);
+        SDL_RenderClear(gRenderer);
 
-        // Render texture to screen
-        // SDL_RenderCopy(gRenderer, gTexture, NULL, NULL);  // SDL2 Implementation
-        SDL_RenderTexture(gRenderer, gTexture, NULL, NULL);  // SDL3 Implementation
+        // Render background texture to Screen
+        gBackgroundTexture.render(0, 0, gRenderer);
 
-        // Top right corner viewport
-        SDL_Rect topRightViewport;
-        topRightViewport.x = SCREEN_WIDTH / 2;
-        topRightViewport.y = 0;
-        topRightViewport.w = SCREEN_WIDTH / 2;
-        topRightViewport.h = SCREEN_HEIGHT / 2;
-        // SDL_RenderSetViewport(gRenderer, &topRightViewport);  // SDL2 Implementation
-        SDL_SetRenderViewport(gRenderer, &topRightViewport);  // SDL3 Implementation
-
-        // Render texture to screen
-        // SDL_RenderCopy(gRenderer, gTexture, NULL, NULL);  // SDL2 Implementation
-        SDL_RenderTexture(gRenderer, gTexture, NULL, NULL);  // SDL3 Implementation
-
-        // Bottom viewport
-        SDL_Rect bottomViewport;
-        bottomViewport.x = 0;
-        bottomViewport.y = SCREEN_HEIGHT / 2;
-        bottomViewport.w = SCREEN_WIDTH;
-        bottomViewport.h = SCREEN_HEIGHT / 2;
-        // SDL_RenderSetViewport(gRenderer, &bottomViewport);  // SDL2 Implementation
-        SDL_SetRenderViewport(gRenderer, &bottomViewport);  // SDL3 Implementation
-
-        // Render texture to screen
-        // SDL_RenderCopy(gRenderer, gTexture, NULL, NULL);  // SDL2 Implementation
-        SDL_RenderTexture(gRenderer, gTexture, NULL, NULL);  // SDL3 Implementation
+        // Render Foo' to the screen
+        gFooTexture.render(240, 190, gRenderer);
 
         // Update screen
         SDL_RenderPresent(gRenderer);
