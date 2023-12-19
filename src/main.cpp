@@ -1,7 +1,4 @@
 // Using SDL and standard IO 
-#include <SDL3/SDL_rect.h>
-#include <SDL3/SDL_render.h>
-#include <regex>
 #include <string>
 #include <stdio.h>
 #include <SDL3/SDL.h>
