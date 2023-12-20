@@ -1,5 +1,6 @@
 #include "LTexture.h"
 #include <SDL3/SDL.h>
+#include <SDL3/SDL_stdinc.h>
 #include <SDL3_image/SDL_image.h>
 #include <cstddef>
 
@@ -70,6 +71,12 @@ void LTexture::free()
     mWidth = 0;
     mHeight = 0;
   }
+}
+
+void LTexture::setColor(Uint8 red, Uint8 green, Uint8 blue)
+{
+  // Modulate texture
+  SDL_SetTextureColorMod(mTexture, red, green, blue);
 }
 
 // void LTexture::render(SDL_Renderer* gRenderer, int x, int y, SDL_Rect* clip)  // SDL2 Implementation

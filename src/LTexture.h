@@ -20,6 +20,9 @@ class LTexture
     // Deallocates Texture
     void free();
 
+    // Set color modulation
+    void setColor(Uint8 red, Uint8 green, Uint8 blue);
+
     // Renders texture at given point
     // void render(SDL_Renderer* gRenderer, int x, int y, SDL_Rect* clip = NULL);  // SDL2 Implementation
     void render(SDL_Renderer* gRenderer, int x, int y, SDL_FRect* clip = NULL);  // SDL3 Implementation
