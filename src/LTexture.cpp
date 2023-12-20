@@ -1,6 +1,7 @@
 #include "LTexture.h"
 #include <SDL3/SDL.h>
 #include <SDL3_image/SDL_image.h>
+#include <cstddef>
 
 LTexture::LTexture()
 {
@@ -71,12 +72,21 @@ void LTexture::free()
   }
 }
 
-void LTexture::render(int x, int y, SDL_Renderer* gRenderer)
+// void LTexture::render(SDL_Renderer* gRenderer, int x, int y, SDL_Rect* clip)  // SDL2 Implementation
+void LTexture::render(SDL_Renderer* gRenderer, int x, int y, SDL_FRect* clip)
 {
   // Set rendering space and render to screen
-  SDL_FRect renderQuad = {static_cast<float>(x), static_cast<float>(y), static_cast<float>(mWidth), static_cast<float>(mHeight)};
-  // SDL_RenderCopy(gRenderer, mTexture, NULL, &renderQuad);  // SDL2 Implementation
-  SDL_RenderTexture(gRenderer, mTexture, NULL, &renderQuad);  // SDL3 Implementation
+  // SDL_Rect renderQuad = {x, y, mWidth, mHeight};  // SDL2 Implementation
+  SDL_FRect renderQuad = {static_cast<float>(x), static_cast<float>(y), static_cast<float>(mWidth), static_cast<float>(mHeight)};  // SDL3 Implementation
+
+  // Set clip rendering dimensions
+  if (clip != NULL)
+  {
+    renderQuad.w = clip->w;
+    renderQuad.h = clip->h;
+  }
+  // SDL_RenderCopy(gRenderer, mTexture, clip, &renderQuad);  // SDL2 Implementation
+  SDL_RenderTexture(gRenderer, mTexture, clip, &renderQuad);  // SDL3 Implementation
 }
 
 int LTexture::getWidth()
