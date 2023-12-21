@@ -1,2 +1,0 @@
-find_package(SDL3 REQUIRED CONFIG REQUIRED COMPONENTS SDL3)
-target_link_libraries(mygame PRIVATE SDL3::SDL3)
