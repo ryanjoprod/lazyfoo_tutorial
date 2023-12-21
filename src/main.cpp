@@ -1,4 +1,7 @@
 // Using SDL and standard IO 
+#include <SDL3/SDL_blendmode.h>
+#include <SDL3/SDL_render.h>
+#include <SDL3/SDL_stdinc.h>
 #include <string>
 #include <stdio.h>
 #include <SDL3/SDL.h>
@@ -19,6 +22,7 @@ SDL_Renderer* gRenderer= NULL;
 
 // Scene texture
 LTexture gModulatedTexture;
+LTexture gBackgroundTexture;
 
 // Scene sprites
 // SDL_Rect gSpriteClips[4]; // SDL2 Implementation
@@ -117,9 +121,20 @@ bool loadMedia()
   bool success = true;
   
   // Load sprite sheet texture
-  if (!gModulatedTexture.loadFromFile("images/full.png", gRenderer))
+  if (!gModulatedTexture.loadFromFile("images/fadeout.png", gRenderer))
   {
-    printf("Failed to load sprite sheet texture.\n");
+    printf("Failed to load front texture.\n");
+    success = false;
+  }
+  else
+  {
+    // Set standard alpha blending
+    gModulatedTexture.setBlendMode(SDL_BLENDMODE_BLEND);
+  }
+
+  if (!gBackgroundTexture.loadFromFile("images/fadein.png", gRenderer))
+  {
+    printf("Failed to load background texture!\n");
     success = false;
   }
 
@@ -166,6 +181,9 @@ int main(int argc, char* args[])
       // Event handler
       SDL_Event e;
 
+      // Modulation component 
+      Uint8 a = 255;
+
       // Modulation components
       Uint8 r = 255;
       Uint8 g = 255;
@@ -184,26 +202,33 @@ int main(int argc, char* args[])
           // else if (e.type = SDL_KEYDOWN)  // SDL2 Implementation
           else if (e.type == SDL_EVENT_KEY_DOWN)  // SDL3 Implementation
           {
-            switch (e.key.keysym.sym)
+            // Increase alpha on w 
+            if (e.key.keysym.sym == SDLK_w)
             {
-              case SDLK_q:  // Increase red
-                r += 32;
-                break;
-              case SDLK_w:  // Increase green
-                g += 32;
-                break;
-              case SDLK_e:  // Increase blue
-                b += 32;
-                break;
-              case SDLK_a:  // Decrease red
-                r -= 32;
-                break;
-              case SDLK_s:  // Decrease green
-                g -= 32;
-                break;
-              case SDLK_d:  // Decrease blue
-                b -= 32;
-                break;
+              // Cap if over 255
+              if (a + 32 > 255)
+              {
+                a = 255;
+              }
+              // Increment otherwise
+              else
+              {
+                a += 32;
+              }
+            }
+            // Decrease alpha on s 
+            else if (e.key.keysym.sym == SDLK_s)
+            {
+              // Cap if below 0
+              if (a - 32 < 0)
+              {
+                a = 0;
+              }
+              // Decrement otherwise
+              else
+              {
+                a -= 32;
+              }
             }
           }
         }
@@ -212,7 +237,11 @@ int main(int argc, char* args[])
         SDL_SetRenderDrawColor(gRenderer, 0xFF, 0xFF, 0xFF, 0xFF);
         SDL_RenderClear(gRenderer);
 
-        gModulatedTexture.setColor(r, g, b);
+        // Render background
+        gBackgroundTexture.render(gRenderer, 0, 0);
+
+        // Render front blend 
+        gModulatedTexture.setAlpha(a);
         gModulatedTexture.render(gRenderer, 0, 0);
 
         // Update screen

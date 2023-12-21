@@ -5,7 +5,7 @@
 #include <SDL3/SDL.h>
 
 // Texture wrapper class
-class LTexture 
+class LTexture
 {
   public:
     // Initialize variables
@@ -22,6 +22,12 @@ class LTexture
 
     // Set color modulation
     void setColor(Uint8 red, Uint8 green, Uint8 blue);
+
+    // Set blending
+    void setBlendMode(SDL_BlendMode blending);
+
+    // Set alpha modulation
+    void setAlpha(Uint8 alpha);
 
     // Renders texture at given point
     // void render(SDL_Renderer* gRenderer, int x, int y, SDL_Rect* clip = NULL);  // SDL2 Implementation

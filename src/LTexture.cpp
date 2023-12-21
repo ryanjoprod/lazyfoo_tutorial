@@ -1,8 +1,11 @@
 #include "LTexture.h"
 #include <SDL3/SDL.h>
+#include <SDL3/SDL_blendmode.h>
+#include <SDL3/SDL_render.h>
 #include <SDL3/SDL_stdinc.h>
 #include <SDL3_image/SDL_image.h>
 #include <cstddef>
+#include <sys/types.h>
 
 LTexture::LTexture()
 {
@@ -94,6 +97,18 @@ void LTexture::render(SDL_Renderer* gRenderer, int x, int y, SDL_FRect* clip)
   }
   // SDL_RenderCopy(gRenderer, mTexture, clip, &renderQuad);  // SDL2 Implementation
   SDL_RenderTexture(gRenderer, mTexture, clip, &renderQuad);  // SDL3 Implementation
+}
+
+void LTexture::setBlendMode(SDL_BlendMode blending)
+{
+  // Set blending function
+  SDL_SetTextureBlendMode(mTexture, blending);
+}
+
+void LTexture::setAlpha(Uint8 alpha)
+{
+  // Modulate texture alpha
+  SDL_SetTextureAlphaMod(mTexture, alpha);
 }
 
 int LTexture::getWidth()
