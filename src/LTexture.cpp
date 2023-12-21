@@ -82,8 +82,8 @@ void LTexture::setColor(Uint8 red, Uint8 green, Uint8 blue)
   SDL_SetTextureColorMod(mTexture, red, green, blue);
 }
 
-// void LTexture::render(SDL_Renderer* gRenderer, int x, int y, SDL_Rect* clip)  // SDL2 Implementation
-void LTexture::render(SDL_Renderer* gRenderer, int x, int y, SDL_FRect* clip)
+// void LTexture::render(SDL_Renderer* gRenderer, int x, int y, SDL_Rect* clip, double angle, SDL_Point* center, SDL_RendererFlip flip)  // SDL2 Implementation
+void LTexture::render(SDL_Renderer* gRenderer, int x, int y, SDL_FRect* clip, double angle, SDL_FPoint* center, SDL_RendererFlip flip)
 {
   // Set rendering space and render to screen
   // SDL_Rect renderQuad = {x, y, mWidth, mHeight};  // SDL2 Implementation
@@ -95,8 +95,8 @@ void LTexture::render(SDL_Renderer* gRenderer, int x, int y, SDL_FRect* clip)
     renderQuad.w = clip->w;
     renderQuad.h = clip->h;
   }
-  // SDL_RenderCopy(gRenderer, mTexture, clip, &renderQuad);  // SDL2 Implementation
-  SDL_RenderTexture(gRenderer, mTexture, clip, &renderQuad);  // SDL3 Implementation
+  // SDL_RenderCopyEx(gRenderer, mTexture, clip, &renderQuad, angle, center, flip);  // SDL2 Implementation
+  SDL_RenderTextureRotated(gRenderer, mTexture, clip, &renderQuad, angle, center, flip);  // SDL3 Implementation
 }
 
 void LTexture::setBlendMode(SDL_BlendMode blending)

@@ -1,7 +1,6 @@
 // Using SDL and standard IO 
-#include <SDL3/SDL_blendmode.h>
 #include <SDL3/SDL_render.h>
-#include <SDL3/SDL_stdinc.h>
+#include <cstddef>
 #include <string>
 #include <stdio.h>
 #include <SDL3/SDL.h>
@@ -23,6 +22,7 @@ SDL_Renderer* gRenderer= NULL;
 // Scene texture
 LTexture gModulatedTexture;
 LTexture gBackgroundTexture;
+LTexture gArrowTexture;
 
 // Walking animation
 const int WALKING_ANIMATION_FRAMES = 4;
@@ -121,7 +121,7 @@ bool loadMedia()
   bool success = true;
   
   // Load sprite sheet texture
-  if (!gSpriteSheetTexture.loadFromFile("images/foo_walk.png", gRenderer))
+  if (!gArrowTexture.loadFromFile("images/arrow.png", gRenderer))
   {
     printf("Failed to load front texture.\n");
     success = false;
@@ -195,6 +195,12 @@ int main(int argc, char* args[])
 
       // Current animate frame
       int frame = 0;
+
+      // Angle of rotation
+      double degrees = 0;
+
+      // Flip type
+      SDL_RendererFlip flipType = SDL_FLIP_NONE;
     
       // Set default current surface
       while(!quit)
@@ -205,16 +211,35 @@ int main(int argc, char* args[])
           {
             quit = true;
           }
+          // else if (e.type == SDL_KEYDOWN)  // SDL2 Implementation
+          else if (e.type == SDL_EVENT_KEY_DOWN)
+          {
+            switch (e.key.keysym.sym)
+            {
+              case SDLK_a:
+                degrees -= 60;
+                break;
+              case SDLK_d:
+                degrees += 60;
+                break;
+              case SDLK_q:
+                flipType = SDL_FLIP_HORIZONTAL;
+                break;
+              case SDLK_w:
+                flipType = SDL_FLIP_NONE;
+                break;
+              case SDLK_e:
+                flipType = SDL_FLIP_VERTICAL;
+                break;
+            }
+          }
         }
         
         // Clear screen
         SDL_SetRenderDrawColor(gRenderer, 0xFF, 0xFF, 0xFF, 0xFF);
         SDL_RenderClear(gRenderer);
 
-        // Render current frame
-        // SDL_Rect* currentClip = &gSpriteClips[frame / 4];  // SDL2 Implementation
-        SDL_FRect* currentClip = &gSpriteClips[frame / 4];  // SDL3 Implementation
-        gSpriteSheetTexture.render(gRenderer, (SCREEN_WIDTH - currentClip->w) / 2, (SCREEN_HEIGHT - currentClip->h) / 2, currentClip);
+        gArrowTexture.render(gRenderer, (SCREEN_WIDTH - gArrowTexture.getWidth()) / 2, (SCREEN_HEIGHT - gArrowTexture.getHeight()) / 2, NULL, degrees, NULL, flipType);
 
         // Update screen
         SDL_RenderPresent(gRenderer);
