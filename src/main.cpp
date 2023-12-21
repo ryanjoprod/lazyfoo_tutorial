@@ -24,9 +24,10 @@ SDL_Renderer* gRenderer= NULL;
 LTexture gModulatedTexture;
 LTexture gBackgroundTexture;
 
-// Scene sprites
-// SDL_Rect gSpriteClips[4]; // SDL2 Implementation
-SDL_FRect gSpriteClips[4]; // SDL3 Implementation
+// Walking animation
+const int WALKING_ANIMATION_FRAMES = 4;
+// SDL_Rect gSpriteClips[WALKING_ANIMATION_FRAMES];  // SDL2 Implementation
+SDL_FRect gSpriteClips[WALKING_ANIMATION_FRAMES];  // SDL3 Implementation
 LTexture gSpriteSheetTexture;
 
 // Loads individual image
@@ -88,9 +89,8 @@ bool init()
     else
     {
       // Create renderer for window
-      // gRenderer = SDL_CreateRenderer(gWindow, -1, SDL_RENDERER_ACCELERATED);  // SDL2 Implementation
-
-      gRenderer = SDL_CreateRenderer(gWindow, NULL, SDL_RENDERER_ACCELERATED);  // SDL3 Implementation
+      // gRenderer = SDL_CreateRenderer(gWindow, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);  // SDL2 Implementation
+      gRenderer = SDL_CreateRenderer(gWindow, NULL, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);  // SDL3 Implementation
       if (gRenderer == NULL)
       {
         printf("Renderer could not be created! SDL Error: %s\n", SDL_GetError());
@@ -121,21 +121,33 @@ bool loadMedia()
   bool success = true;
   
   // Load sprite sheet texture
-  if (!gModulatedTexture.loadFromFile("images/fadeout.png", gRenderer))
+  if (!gSpriteSheetTexture.loadFromFile("images/foo_walk.png", gRenderer))
   {
     printf("Failed to load front texture.\n");
     success = false;
   }
   else
   {
-    // Set standard alpha blending
-    gModulatedTexture.setBlendMode(SDL_BLENDMODE_BLEND);
-  }
+    // Set sprite clips 
+    gSpriteClips[0].x = 0;
+    gSpriteClips[0].y = 0;
+    gSpriteClips[0].w = 64;
+    gSpriteClips[0].h = 205;
 
-  if (!gBackgroundTexture.loadFromFile("images/fadein.png", gRenderer))
-  {
-    printf("Failed to load background texture!\n");
-    success = false;
+    gSpriteClips[1].x = 64;
+    gSpriteClips[1].y = 0;
+    gSpriteClips[1].w = 64;
+    gSpriteClips[1].h = 205;
+
+    gSpriteClips[2].x = 128;
+    gSpriteClips[2].y = 0;
+    gSpriteClips[2].w = 64;
+    gSpriteClips[2].h = 205;
+
+    gSpriteClips[3].x = 192;
+    gSpriteClips[3].y = 0;
+    gSpriteClips[3].w = 64;
+    gSpriteClips[3].h = 205;
   }
 
   // Nothing to load
@@ -181,14 +193,9 @@ int main(int argc, char* args[])
       // Event handler
       SDL_Event e;
 
-      // Modulation component 
-      Uint8 a = 255;
-
-      // Modulation components
-      Uint8 r = 255;
-      Uint8 g = 255;
-      Uint8 b = 255;
-
+      // Current animate frame
+      int frame = 0;
+    
       // Set default current surface
       while(!quit)
       {
@@ -198,54 +205,28 @@ int main(int argc, char* args[])
           {
             quit = true;
           }
-          // On keypress change rgb values
-          // else if (e.type = SDL_KEYDOWN)  // SDL2 Implementation
-          else if (e.type == SDL_EVENT_KEY_DOWN)  // SDL3 Implementation
-          {
-            // Increase alpha on w 
-            if (e.key.keysym.sym == SDLK_w)
-            {
-              // Cap if over 255
-              if (a + 32 > 255)
-              {
-                a = 255;
-              }
-              // Increment otherwise
-              else
-              {
-                a += 32;
-              }
-            }
-            // Decrease alpha on s 
-            else if (e.key.keysym.sym == SDLK_s)
-            {
-              // Cap if below 0
-              if (a - 32 < 0)
-              {
-                a = 0;
-              }
-              // Decrement otherwise
-              else
-              {
-                a -= 32;
-              }
-            }
-          }
         }
         
         // Clear screen
         SDL_SetRenderDrawColor(gRenderer, 0xFF, 0xFF, 0xFF, 0xFF);
         SDL_RenderClear(gRenderer);
 
-        // Render background
-        gBackgroundTexture.render(gRenderer, 0, 0);
-
-        // Render front blend 
-        gModulatedTexture.setAlpha(a);
-        gModulatedTexture.render(gRenderer, 0, 0);
+        // Render current frame
+        // SDL_Rect* currentClip = &gSpriteClips[frame / 4];  // SDL2 Implementation
+        SDL_FRect* currentClip = &gSpriteClips[frame / 4];  // SDL3 Implementation
+        gSpriteSheetTexture.render(gRenderer, (SCREEN_WIDTH - currentClip->w) / 2, (SCREEN_HEIGHT - currentClip->h) / 2, currentClip);
 
         // Update screen
         SDL_RenderPresent(gRenderer);
+
+        // Go to next frame
+        ++frame;
+
+        // Cycle animation
+        if (frame / 4 >= WALKING_ANIMATION_FRAMES)
+        {
+          frame = 0;
+        }
       }
     }
   }
