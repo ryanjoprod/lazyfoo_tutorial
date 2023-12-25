@@ -3,8 +3,10 @@
 #include <SDL3/SDL_blendmode.h>
 #include <SDL3/SDL_render.h>
 #include <SDL3/SDL_stdinc.h>
+#include <SDL3/SDL_surface.h>
 #include <SDL3_image/SDL_image.h>
 #include <cstddef>
+#include <cstdio>
 #include <sys/types.h>
 
 LTexture::LTexture()
@@ -61,6 +63,41 @@ bool LTexture::loadFromFile(std::string path, SDL_Renderer* gRenderer)
 
   // Return success
   mTexture = newTexture;
+  return mTexture != NULL;
+}
+
+bool LTexture::loadFromRenderedText(std::string textureText, SDL_Color textColor, TTF_Font* gFont, SDL_Renderer* gRenderer)
+{
+  // Gid rid of pre-existing texture
+  free();
+
+  // Render text surface
+  SDL_Surface* textSurface = TTF_RenderText_Solid(gFont, textureText.c_str(), textColor);
+  if (textSurface == NULL)
+  {
+    printf("Unable to render text surface! SDL_ttf Error: %s\n", TTF_GetError());
+  }
+  else
+  {
+    // Create texture from surface pixels
+    mTexture = SDL_CreateTextureFromSurface(gRenderer, textSurface);
+    if (mTexture == NULL)
+    {
+      printf("Unable to create texture from rendered text! SDL Error: %s\n", SDL_GetError());
+    }
+    else
+    {
+      // Get image dimenstions
+      mWidth = textSurface->w;
+      mHeight = textSurface->h;
+    }
+
+    // Get rid of old surface
+    // SDL_FreeSurface(textSurface);  // SDL2 Implementation
+    SDL_DestroySurface(textSurface);
+  }
+
+  // Return surface
   return mTexture != NULL;
 }
 
