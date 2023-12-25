@@ -1,11 +1,16 @@
 // Using SDL and standard IO 
+#include <SDL3/SDL_pixels.h>
 #include <SDL3/SDL_render.h>
+#include <SDL3/SDL_thread.h>
 #include <cstddef>
+#include <regex>
 #include <string>
 #include <stdio.h>
+#include <cmath>
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_main.h>
 #include <SDL3_image/SDL_image.h>
+#include <SDL3_ttf/SDL_ttf.h>
 
 #include "LTexture.h"
 
@@ -19,16 +24,11 @@ SDL_Window* gWindow = NULL;
 // The window renderer
 SDL_Renderer* gRenderer= NULL;
 
-// Scene texture
-LTexture gModulatedTexture;
-LTexture gBackgroundTexture;
-LTexture gArrowTexture;
+// Globally used font 
+TTF_Font* gFont = NULL;
 
-// Walking animation
-const int WALKING_ANIMATION_FRAMES = 4;
-// SDL_Rect gSpriteClips[WALKING_ANIMATION_FRAMES];  // SDL2 Implementation
-SDL_FRect gSpriteClips[WALKING_ANIMATION_FRAMES];  // SDL3 Implementation
-LTexture gSpriteSheetTexture;
+// Rendered texture
+LTexture gTextTexture;
 
 // Loads individual image
 // Loads only one file format at a time.
@@ -107,6 +107,13 @@ bool init()
           printf("SDL3_image could not initialize! SDL_image Error: %s\n", IMG_GetError());
           success = false;
         }
+
+        // Initialize SDL_ttf
+        if (TTF_Init() == -1)
+        {
+          printf("SDL_ttf could not initialize! SDL_ttf Error: %s\n", TTF_GetError());
+          success = false;
+        }
       }
     }
   }
@@ -121,33 +128,21 @@ bool loadMedia()
   bool success = true;
   
   // Load sprite sheet texture
-  if (!gArrowTexture.loadFromFile("images/arrow.png", gRenderer))
+  gFont = TTF_OpenFont("assets/fonts/lazy.ttf", 28);
+  if (gFont == NULL)
   {
-    printf("Failed to load front texture.\n");
+    printf("Failed to load lazy font! SDL_ttf Error: %s\n", TTF_GetError());
     success = false;
   }
   else
   {
-    // Set sprite clips 
-    gSpriteClips[0].x = 0;
-    gSpriteClips[0].y = 0;
-    gSpriteClips[0].w = 64;
-    gSpriteClips[0].h = 205;
-
-    gSpriteClips[1].x = 64;
-    gSpriteClips[1].y = 0;
-    gSpriteClips[1].w = 64;
-    gSpriteClips[1].h = 205;
-
-    gSpriteClips[2].x = 128;
-    gSpriteClips[2].y = 0;
-    gSpriteClips[2].w = 64;
-    gSpriteClips[2].h = 205;
-
-    gSpriteClips[3].x = 192;
-    gSpriteClips[3].y = 0;
-    gSpriteClips[3].w = 64;
-    gSpriteClips[3].h = 205;
+    // Render text 
+    SDL_Color textColor = { 0, 0, 0, 100 };
+    if (!gTextTexture.loadFromRenderedText("The quick brown fox jumps over the lazy dog", textColor, gFont, gRenderer))
+    {
+      printf("Failed to render text texture!\n");
+      success = false;
+    }
   }
 
   // Nothing to load
@@ -158,7 +153,7 @@ bool loadMedia()
 void close()
 {
   // Free loaded image
-  gModulatedTexture.free();
+  gTextTexture.free();
 
   // Destroy window
   SDL_DestroyRenderer(gRenderer);
@@ -167,6 +162,7 @@ void close()
   gRenderer = NULL;
 
   // Quit SDL subsystems
+  TTF_Quit();
   IMG_Quit();
   SDL_Quit();
 }
@@ -193,9 +189,6 @@ int main(int argc, char* args[])
       // Event handler
       SDL_Event e;
 
-      // Current animate frame
-      int frame = 0;
-
       // Angle of rotation
       double degrees = 0;
 
@@ -211,47 +204,17 @@ int main(int argc, char* args[])
           {
             quit = true;
           }
-          // else if (e.type == SDL_KEYDOWN)  // SDL2 Implementation
-          else if (e.type == SDL_EVENT_KEY_DOWN)
-          {
-            switch (e.key.keysym.sym)
-            {
-              case SDLK_a:
-                degrees -= 60;
-                break;
-              case SDLK_d:
-                degrees += 60;
-                break;
-              case SDLK_q:
-                flipType = SDL_FLIP_HORIZONTAL;
-                break;
-              case SDLK_w:
-                flipType = SDL_FLIP_NONE;
-                break;
-              case SDLK_e:
-                flipType = SDL_FLIP_VERTICAL;
-                break;
-            }
-          }
         }
         
         // Clear screen
         SDL_SetRenderDrawColor(gRenderer, 0xFF, 0xFF, 0xFF, 0xFF);
         SDL_RenderClear(gRenderer);
 
-        gArrowTexture.render(gRenderer, (SCREEN_WIDTH - gArrowTexture.getWidth()) / 2, (SCREEN_HEIGHT - gArrowTexture.getHeight()) / 2, NULL, degrees, NULL, flipType);
+        // Render current frame
+        gTextTexture.render(gRenderer, (SCREEN_WIDTH - gTextTexture.getWidth()) / 2, (SCREEN_HEIGHT - gTextTexture.getHeight()) / 2);
 
         // Update screen
         SDL_RenderPresent(gRenderer);
-
-        // Go to next frame
-        ++frame;
-
-        // Cycle animation
-        if (frame / 4 >= WALKING_ANIMATION_FRAMES)
-        {
-          frame = 0;
-        }
       }
     }
   }

@@ -16,8 +16,9 @@ target_compile_options(compiler_flags INTERFACE
 
 add_executable(${CMAKE_PROJECT_NAME} src/main.cpp)
 
-include_directories(images)
+include_directories(assets)
 
 find_package(SDL3 REQUIRED CONFIG REQUIRED COMPONENTS SDL3)
 find_package(SDL3_image REQUIRED CONFIG REQUIRED COMPONENTS SDL3_image)
-target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE LTexture SDL3::SDL3 SDL3_image::SDL3_image compiler_flags)
+find_package(SDL3_ttf REQUIRED CONFIG REQUIRED COMPONENTS SDL3_ttf)
+target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE LTexture SDL3::SDL3 SDL3_image::SDL3_image SDL3_ttf::SDL3_ttf compiler_flags)

@@ -3,6 +3,7 @@
 
 #include <string>
 #include <SDL3/SDL.h>
+#include <SDL3_ttf/SDL_ttf.h>
 
 // Texture wrapper class
 class LTexture
@@ -16,6 +17,9 @@ class LTexture
 
     // Loads image at specified path
     bool loadFromFile(std::string path, SDL_Renderer* gRenderer);
+
+    // Creates image from font string
+    bool loadFromRenderedText(std::string textureText, SDL_Color textColor, TTF_Font* gFont, SDL_Renderer* gRenderer);
 
     // Deallocates Texture
     void free();
