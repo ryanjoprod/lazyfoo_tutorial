@@ -66,6 +66,7 @@ bool LTexture::loadFromFile(std::string path, SDL_Renderer* gRenderer)
   return mTexture != NULL;
 }
 
+#if defined(SDL_TTF_MAJOR_VERSION)
 bool LTexture::loadFromRenderedText(std::string textureText, SDL_Color textColor, TTF_Font* gFont, SDL_Renderer* gRenderer)
 {
   // Gid rid of pre-existing texture
@@ -100,6 +101,7 @@ bool LTexture::loadFromRenderedText(std::string textureText, SDL_Color textColor
   // Return surface
   return mTexture != NULL;
 }
+#endif
 
 void LTexture::free()
 {
@@ -120,7 +122,7 @@ void LTexture::setColor(Uint8 red, Uint8 green, Uint8 blue)
 }
 
 // void LTexture::render(SDL_Renderer* gRenderer, int x, int y, SDL_Rect* clip, double angle, SDL_Point* center, SDL_RendererFlip flip)  // SDL2 Implementation
-void LTexture::render(SDL_Renderer* gRenderer, int x, int y, SDL_FRect* clip, double angle, SDL_FPoint* center, SDL_RendererFlip flip)
+void LTexture::render(SDL_Renderer* gRenderer, float x, float y, SDL_FRect* clip, double angle, SDL_FPoint* center, SDL_RendererFlip flip)
 {
   // Set rendering space and render to screen
   // SDL_Rect renderQuad = {x, y, mWidth, mHeight};  // SDL2 Implementation
@@ -148,12 +150,12 @@ void LTexture::setAlpha(Uint8 alpha)
   SDL_SetTextureAlphaMod(mTexture, alpha);
 }
 
-int LTexture::getWidth()
+float LTexture::getWidth()
 {
   return mWidth;
 }
 
-int LTexture::getHeight()
+float LTexture::getHeight()
 {
   return mHeight;
 }
