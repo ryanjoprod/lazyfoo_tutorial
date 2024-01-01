@@ -4,9 +4,6 @@ project(LazyFoo_tutorials VERSION 1.0)
 add_library(compiler_flags INTERFACE)
 target_compile_features(compiler_flags INTERFACE cxx_std_20)
 
-add_library(LTexture src/LTexture.cpp)
-add_library(LButton src/LButton.cpp)
-
 set(gcc_like_cxx "$<COMPILE_LANG_AND_ID:CXX,ARMClang,AppleClang,GNU,LCC>")
 set(msvc_cxx "$<COMPILE_LANG_AND_ID:CXX,MSVC>")
 
@@ -22,4 +19,4 @@ include_directories(assets)
 find_package(SDL3 REQUIRED CONFIG REQUIRED COMPONENTS SDL3)
 find_package(SDL3_image REQUIRED CONFIG REQUIRED COMPONENTS SDL3_image)
 find_package(SDL3_ttf REQUIRED CONFIG REQUIRED COMPONENTS SDL3_ttf)
-target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE LTexture LButton SDL3::SDL3 SDL3_image::SDL3_image SDL3_ttf::SDL3_ttf compiler_flags)
+target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE SDL3::SDL3 SDL3_image::SDL3_image SDL3_ttf::SDL3_ttf compiler_flags)
